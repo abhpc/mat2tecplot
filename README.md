@@ -21,18 +21,23 @@ N=`head -1 $inputfile | awk '{print NF}'`
 
 rm -rf $outputfile
 
+MAT=`cat $inputfile`
+
 echo "TITLE = Tecplot Data Format" >> $outputfile
 echo "VARIABLES = "X", "Y", "$colorlabel"" >> $outputfile
 echo "ZONE I=$M, J=$N, F=POINT" >> $outputfile
 
-for ((i=1;i<$M+1;i++))
-{
-   for ((j=1;j<$N+1;j++))
-   {
-      data=$(awk 'NR=='$i'{print $'$j'}' $inputfile)
-      yy=$[$ymin+($i-1)*($ymax-$ymin)/($N-1)|bc]
-      xx=$[$xmin+($j-1)*($xmax-$xmin)/($M-1)|bc]
-      echo "$xx,$yy,$data" >> $outputfile
-   }
-}
+i=1;
+
+for k in $MAT
+do
+	m=$[$i/$N+1];
+	n=$[$i-$m*$N+$N];
+	#echo i=$i m=$m n=$n
+	#sleep 1
+	yy=$[$ymin+($m-1)*($ymax-$ymin)/($N-1)|bc]
+	xx=$[$xmin+($n-1)*($xmax-$xmin)/($M-1)|bc]
+	echo "$xx $yy $k" >> $outputfile
+	i=$[$i+1];
+done
 ```
