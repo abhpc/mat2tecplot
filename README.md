@@ -1,10 +1,10 @@
 # mat2tecplot
-将m*n矩阵转化为tecplot数据格式，输入格式比如“./mat2tecplot.sh -2000 2000 -500 500 c_keatom test.txt”，其中mat2tecplot.sh文件内容如下：
+将m*n矩阵转化为tecplot数据格式，输入格式比如“./mat2tecplot.sh -2000 2000 -500 500 c_keatom test.txt”，输出文件为输入文件加后缀".tecplot.dat",其中mat2tecplot.sh文件内容如下：
 ```
 #! /bin/bash
 
 if [ ! $# == 6 ]; then
-echo "Need parameters! Usage: $0 number_of_row number_of_column min_of_x max_of_x min_of_y max_of_y colorlabel input_file output_file"
+echo "Need parameters! Usage: $0 Xmin Xmax Ymin Ymax Label input_file"
 exit
 fi
 
