@@ -17,7 +17,7 @@ inputfile="$6"
 outputfile=$inputfile.tecplot.dat
 
 M=`cat $inputfile|wc -l`
-N="head -1 $inputfile | awk '{print NF}'"
+N=`head -1 $inputfile | awk '{print NF}'`
 
 rm -rf $outputfile
 
