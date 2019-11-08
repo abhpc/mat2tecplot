@@ -40,7 +40,7 @@ for k in $MAT
 do
 	m=$[($i-1)/$N+1];
 	n=$[$i-$m*$N+$N];
-	echo "$m $n $k" >> $tmpout
+	echo "$n $m $k" >> $tmpout
 	i=$[$i+1];
 done
 
