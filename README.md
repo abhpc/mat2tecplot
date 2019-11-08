@@ -14,30 +14,36 @@ ymin="$3"
 ymax="$4"
 colorlabel="$5"
 inputfile="$6"
-outputfile=$inputfile.tecplot.dat
+outputfile=$inputfile.tp
+tmpout=$outputfile.tmp
 
-M=`cat $inputfile|wc -l`
-N=`head -1 $inputfile | awk '{print NF}'`
+M=`cat $inputfile|grep -v "#"|wc -l`
+N=`head -2 $inputfile|tail -1| awk '{print NF}'`
 
-rm -rf $outputfile
+dY=`echo |awk '{print ('$ymax'-1.0*'$ymin')/('$N'-1.0)}'`
+dX=`echo |awk '{print ('$xmax'-1.0*'$xmin')/('$M'-1.0)}'`
 
-MAT=`cat $inputfile`
+#echo "M=$M N=$N dX=$dX dY=$dY"
+#sleep 20
 
-echo "TITLE = Tecplot Data Format" >> $outputfile
-echo "VARIABLES = "X", "Y", "$colorlabel"" >> $outputfile
+rm -rf $outputfile $tmpout
+
+MAT=`cat $inputfile|grep -v "#"`
+
+echo "TITLE = \"Tecplot Data Format\"" >> $outputfile
+echo "VARIABLES = \"X\", \"Y\", \"$colorlabel\"" >> $outputfile
 echo "ZONE I=$M, J=$N, F=POINT" >> $outputfile
 
 i=1;
 
 for k in $MAT
 do
-	m=$[$i/$N+1];
+	m=$[($i-1)/$N+1];
 	n=$[$i-$m*$N+$N];
-	#echo i=$i m=$m n=$n
-	#sleep 1
-	yy=$[$ymin+($m-1)*($ymax-$ymin)/($N-1)|bc]
-	xx=$[$xmin+($n-1)*($xmax-$xmin)/($M-1)|bc]
-	echo "$xx $yy $k" >> $outputfile
+	echo "$m $n $k" >> $tmpout
 	i=$[$i+1];
 done
+
+awk -v a0="$xmin" -v a1="$dX" -v b0="$ymin" -v b1="$dY" '{print a0+($1-1)*a1, b0+($2-1)*b1, $3}' $tmpout >> $outputfile
+rm -rf $tmpout
 ```
