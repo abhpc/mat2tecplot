@@ -17,11 +17,13 @@ inputfile="$6"
 outputfile=$inputfile.tp
 tmpout=$outputfile.tmp
 
+dos2unix $inputfile
+
 M=`cat $inputfile|grep -v "#"|wc -l`
 N=`head -2 $inputfile|tail -1| awk '{print NF}'`
 
-dY=`echo |awk '{print ('$ymax'-1.0*'$ymin')/('$N'-1.0)}'`
-dX=`echo |awk '{print ('$xmax'-1.0*'$xmin')/('$M'-1.0)}'`
+dY=`echo |awk '{print ('$ymax'-1.0*'$ymin')/('$M'-1.0)}'`
+dX=`echo |awk '{print ('$xmax'-1.0*'$xmin')/('$N'-1.0)}'`
 
 #echo "M=$M N=$N dX=$dX dY=$dY"
 #sleep 20
@@ -32,18 +34,24 @@ MAT=`cat $inputfile|grep -v "#"`
 
 echo "TITLE = \"Tecplot Data Format\"" >> $outputfile
 echo "VARIABLES = \"X\", \"Y\", \"$colorlabel\"" >> $outputfile
-echo "ZONE I=$M, J=$N, F=POINT" >> $outputfile
+echo "ZONE I=$N, J=$M, F=POINT" >> $outputfile
 
 i=1;
 
 for k in $MAT
 do
-	m=$[($i-1)/$N+1];
-	n=$[$i-$m*$N+$N];
+	m=$[$i/$N+1];
+	n=$[$i%$N];
+	if [ "$n" == "0" ] ; then
+		n=$N;
+		m=$[$m-1];
+	fi
+	#echo "$n $m"
+	#sleep 1
 	echo "$n $m $k" >> $tmpout
 	i=$[$i+1];
 done
 
-awk -v a0="$xmin" -v a1="$dX" -v b0="$ymin" -v b1="$dY" '{print a0+($1-1)*a1, b0+($2-1)*b1, $3}' $tmpout >> $outputfile
+awk -v a0="$xmin" -v a1="$dX" -v b0="$ymin" -v b1="$dY" '{print a0+($1-1.0)*a1, b0+($2-1.0)*b1, $3}' $tmpout >> $outputfile
 rm -rf $tmpout
 ```
